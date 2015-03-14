@@ -6,8 +6,7 @@ import config as cfg
 from pynamodb.constants import PROVISIONED_THROUGHPUT, READ_CAPACITY_UNITS
 from pynamodb.connection import TableConnection
 from pynamodb.types import STRING, HASH, RANGE, NUMBER
-
-table_name = 'pynamodb-ci'
+from pynamodb.exceptions import TableDoesNotExist
 
 # For use with a fake dynamodb connection
 # See: http://aws.amazon.com/dynamodb/developer-resources/
@@ -15,7 +14,11 @@ conn = TableConnection('pynamodb', host=cfg.DYNAMODB_HOST)
 print(conn)
 
 print("conn.describe_table...")
-table = conn.describe_table()
+try:
+    table = conn.describe_table()
+except TableDoesNotExist:
+    table = None
+
 if table is None:
     params = {
         'read_capacity_units': 1,
